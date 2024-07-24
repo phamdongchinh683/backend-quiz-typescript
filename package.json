@@ -1,0 +1,47 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js",
+    "sass": "sass -w src/public/scss/style.scss src/public/css/style.css"
+  },
+  "keywords": [],
+  "author": "Chinh",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "consolidate": "^1.0.3",
+    "cookie-parser": "^1.4.6",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express-async-errors": "^3.1.1",
+    "express-session": "^1.18.0",
+    "http-errors": "^2.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken-promisified": "^1.0.3",
+    "morgan": "^1.10.0",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.6.5",
+    "nodemailer": "^6.9.8",
+    "path": "^0.12.7",
+    "pug": "^3.0.2",
+    "rand-token": "^1.0.1",
+    "sass": "^1.69.7",
+    "util": "^0.12.5",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/nodemailer": "^6.4.14",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "nodemon": "^3.0.2"
+  },
+  "description": ""
+}

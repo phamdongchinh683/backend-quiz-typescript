@@ -11,6 +11,7 @@ import IUserRequestBody from "../../interface/IUserRequestBody";
 import ICreateUser from "../../interface/INewUser";
 import IRole from "../../interface/IRole";
 import Database from "../../config/config";
+import INewInfo from "../../interface/INewInfo";
 
 const saltRounds = 10;
 const TokenSecret = process.env.ACCESS_TOKEN_SECRET;
@@ -75,7 +76,7 @@ const authController = {
   },
 
   login: async (req: Request, res: Response): Promise<void> => {
-    const { username, password, phoneNumber }: IUserRequestBody = req.body; 
+    const { username, password, phoneNumber }: IUserRequestBody = req.body;
     try {
       const StatementType: string = "Login";
       const [rows] = await connection.query<RowDataPacket[]>(
@@ -98,7 +99,6 @@ const authController = {
           StatementType,
         ]
       );
-
       const user = rows[0][0];
       if (!user) {
         responseStatus({ res, status: "failed", statusCode: 403, data: "Username or password is incorrect" });
@@ -112,7 +112,7 @@ const authController = {
         responseStatus({ res, status: "success", statusCode: 200, data: accessToken });
       }
     } catch (error) {
-      responseStatus({ res, status: "failed", statusCode: 500, data: error });
+      responseStatus({ res, status: "failed", statusCode: 500, data: "hehe" });
     }
   },
 
@@ -176,11 +176,11 @@ const authController = {
     const currentPassword = await bcrypt.compare(password, user.password);
     if (!currentPassword) {
       responseStatus({ res, status: "failed", statusCode: 400, data: "Current password is incorrect. Please try again" });
+      return
     }
     const hashPassword = await bcrypt.hash(newPassword, saltRounds);
     try {
       const update = await StudentService.updatePassword(hashPassword, user.id);
-      console.log(update)
       if (update) {
         responseStatus({ res, status: "failed", statusCode: 400, data: "Updated password" });
       }
@@ -189,43 +189,52 @@ const authController = {
     }
   },
 
-  // updateProfile: async (req: IUserRequest, res: Response): Promise<void> => {
-  //   const info = req.user;
-  //   const { firstName, lastName, age, city, address, email, phoneNumber, image, birthday, gender } = req.body;
+  updateProfile: async (req: IUserRequest, res: Response): Promise<void> => {
+    const info = req.info;
 
-  //   if (email === info.email) {
-      
-  //      responseStatus(res, 400, "failed", "Email must be different from current email");
-  //   }
+    if (!info) {
+      responseStatus({ res, status: "failed", statusCode: 404, data: "Not found your information" });
+      return;
+    }
 
-  //   if (phoneNumber === info.phone_number) {
-  //      responseStatus(res, 400, "failed", "Phone number must be different from current phone number");
-  //   }
+    const { firstName, lastName, age, city, address, email, phoneNumber, image, birthday, gender }: INewInfo = req.body;
 
-  //   const newInfo = {
-  //     firstName,
-  //     lastName,
-  //     age,
-  //     city,
-  //     address,
-  //     email,
-  //     phoneNumber,
-  //     image,
-  //     birthday,
-  //     gender,
-  //     id: info.id,
-  //   };
-  //   try {
-  //     const update = await Student.updateProfile(newInfo);
-  //     if (update.affectedRows > 0) {
-  //        responseStatus(res, 200, "success", "Updated user");
-  //     } else {
-  //        responseStatus(res, 400, "failed", "Failed to update user");
-  //     }
-  //   } catch (error) {
-  //      responseStatus(res, 500, "failed", "Server Error");
-  //   }
-  // },
+    if (email === info.email) {
+      responseStatus({ res, status: "failed", statusCode: 400, data: "Email must be different from current email" });
+      return;
+    }
+
+    if (phoneNumber === info.phone_number) {
+      responseStatus({ res, status: "failed", statusCode: 400, data: "Phone number must be different from current phone number" });
+      return;
+    }
+
+    const newInfo = {
+      firstName,
+      lastName,
+      age,
+      city,
+      address,
+      email,
+      phoneNumber,
+      image,
+      birthday,
+      gender,
+      id: info.id,
+    };
+
+    try {
+      const update = await StudentService.updateProfile(newInfo);
+      if (update) {
+        responseStatus({ res, status: "success", statusCode: 200, data: "Updated information" });
+      } else {
+        responseStatus({ res, status: "failed", statusCode: 400, data: "Update failed" });
+      }
+    } catch (error) {
+      responseStatus({ res, status: "failed", statusCode: 500, data: "Server Error" });
+    }
+}
+
 
   // listExam: async (req: Request, res: Response): Promise<void> => {
   //   try {

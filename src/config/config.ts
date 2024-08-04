@@ -15,8 +15,7 @@ class Database {
       database: process.env.DB_NAME,
       waitForConnections: true,
       connectionLimit: 20,
-      queueLimit: 0,
-      rowsAsArray: true,
+      queueLimit: 0   
     };
 
     this.connection = mysql.createPool(access);

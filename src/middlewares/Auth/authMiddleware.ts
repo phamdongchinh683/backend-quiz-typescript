@@ -156,8 +156,8 @@ const authMiddleware = {
   },
 
   isStudent: async (req: Request, res: Response, next: NextFunction) => {
-    const student = await StudentService.isStudent(req.body);
-    if (student?.role === "student") {
+    const role = await StudentService.isStudent(req.body);
+    if (role === "student") {
       next();
     } else {
       responseStatus({res, status: "failed", statusCode: 401, data: "just only student can login!"});

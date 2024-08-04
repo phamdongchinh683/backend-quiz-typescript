@@ -26,12 +26,12 @@ router.get(
     authController.updatePassword
   );
   
-//   router.post(
-//     "/profile/change-information",
-//     authMiddleware.authorization,
-//     authMiddleware.roleStudent,
-//     authController.updateProfile
-//   );
+  router.post(
+    "/profile/change-information",
+    authMiddleware.authorization,
+    authMiddleware.roleStudent,
+    authController.updateProfile
+  );
   
   router.get(
     "/profile/exam-history",

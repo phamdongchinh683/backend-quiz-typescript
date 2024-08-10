@@ -28,7 +28,7 @@ const authMethod = {
     }
   },
 
-  verifyToken: async (token: any, secretKey: any) => {
+  verifyToken: async (token: any, secretKey: any) => {    
     try {
       return await verify(token, secretKey,{
         ignoreExpiration: false,

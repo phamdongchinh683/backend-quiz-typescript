@@ -40,26 +40,25 @@ router.get(
     authController.examHistory
   );
   
-//   router.get(
-//     "/exam-list",
-//     authMiddleware.authorization,
-//     authMiddleware.roleStudent,
-//     authController.listExam
-//   );
+  router.get(
+    "/exam-list",
+    authMiddleware.authorization,
+    authMiddleware.roleStudent,
+    authController.listExam
+  );
   
-//   router.post(
-//     "/take-exam/:id",
-//     authMiddleware.authorization,
-//     authMiddleware.roleStudent,
-//     authController.getExam
-//   );
-//   router.post(
-//     "/submit-exam/:id",
-//     authMiddleware.authorization,
-//     authMiddleware.roleStudent,
-//     authMiddleware.submitResults,
-//     authMiddleware.examResult,
-//     authController.saveResult
-//   );
+  router.post(
+    "/take-exam/:id",
+    authMiddleware.authorization,
+    authMiddleware.roleStudent,
+    authController.getExam
+  );
+  router.post(
+    "/submit-exam/:id",
+    authMiddleware.authorization,
+    authMiddleware.roleStudent,
+    authMiddleware.examResult,
+    authController.saveResult
+  );
 
 export default router;

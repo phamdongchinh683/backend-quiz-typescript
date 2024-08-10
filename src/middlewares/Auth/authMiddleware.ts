@@ -7,20 +7,20 @@ import StudentService from "../../services/student/student.service";
 import IPayload from '../../interface/IPayload';
 import IUserRequest from "../../interface/IUserRequest";
 import INewUser from "../../interface/INewUser";
+import ExamService from "../../services/student/exam.service";
 
-const TokenSecret = process.env.ACCESS_TOKEN_SECRET;
-
+const tokenSecret = process.env.ACCESS_TOKEN_SECRET;
 const authMiddleware = {
 
   authorization: async (req: IUserRequest, res: Response, next: NextFunction) => {
-    const authorizationToken = req.headers["token"];
+    const authorizationToken = req.headers["token"] as string;
     if (!authorizationToken) {
-      return responseStatus({ res, status: "failed", statusCode: 401, data: "Unauthorized!" });
+      responseStatus({ res, status: "failed", statusCode: 401, data: "Unauthorized!" });
     }
     try {
-      const verified = await authMethod.verifyToken(authorizationToken, TokenSecret);
+      const verified = await authMethod.verifyToken(authorizationToken, tokenSecret);
       if (!verified) {
-        return responseStatus({ res, status: "failed", statusCode: 403, data: "You do not have access!" });
+        responseStatus({ res, status: "failed", statusCode: 403, data: "You do not have access!" });
       }
       const payload: IPayload = {
         username: verified.payload,
@@ -176,90 +176,50 @@ const authMiddleware = {
     } else {
       return responseStatus({res, status: "failed", statusCode: 401, data: "Only students can access"});
     }
-  }
+  },
 
-  // submitResults: async (req: IUserRequest, res: Response, next: NextFunction) => {
-  //   const payload = req.user;
-  //   if (!payload) {
-  //     return responseStatus({res, status: "failed", statusCode: 401, data: "Unauthorized"});
-  //   }   
-  //   const examId = req.params.id;
-  //   const { results, examTime, examDate } = req.body;
+  examResult: async (req: IUserRequest, res: Response, next: NextFunction) => {
+    const examId = req.params.id;
+    const payload = req.info;
+    if (!payload) {
+      responseStatus({res, status: "failed", statusCode: 401, data: "Unauthorized"});
+      return;
+    }   
+    const { results, examTime, examDate } = req.body;
+    const questions = await ExamService.examQuestion(examId);
+    let totalPoints = 0;
 
-  //   try {
-  //     const values = results.map((value: any) => [
-  //       value.questionId,
-  //       examId,
-  //       user.id,
-  //       value.result,
-  //       value.examDate,
-  //     ]);
+    if (results.length === 0) {
+      totalPoints = 0;
+    } else {
+      for (let answer of results) {
+        let question = questions?.find((q) =>(
+          q.id === answer.questionId
+        ));
+        if (question) {
+          const isCorrect = await bcrypt.compare(answer?.result, question?.correct_answer);
+          if (isCorrect === true) {
+            totalPoints += 0.25;
+          }
+        }
+      }
+    }
 
-  //     if (values.length > 0) {
-  //       req.results = {
-  //         values,
-  //         examId,
-  //         results,
-  //         user,
-  //         time: examTime,
-  //         examDate,
-  //       };
-  //       next();
-  //     } else {
-  //       responseStatus(res, 400, "failed", "Please select an answer before submitting your answer");
-  //     }
-  //   } catch (error) {
-  //     responseStatus(res, 500, "failed", "Internal server error");
-  //   }
-  // },
-
-  // examResult: async (req: Request, res: Response, next: NextFunction) => {
-  //   const dataMiddleware = [
-  //     req.results.values,
-  //     req.results.examId,
-  //     req.results.results,
-  //     req.results.user,
-  //     req.results.time,
-  //     req.results.examDate,
-  //   ];
-  //   const [values, examId, answers, user, time, examDate] = dataMiddleware;
-
-  //   const questions = await Exam.examQuestion(examId);
-
-  //   let totalPoints = 0;
-
-  //   if (answers.length === 0) {
-  //     totalPoints = 0;
-  //   } else {
-  //     for (let answer of answers) {
-  //       let question = questions.find((q) => q.id === answer.questionId);
-  //       if (question) {
-  //         const isCorrect = await bcrypt.compare(answer.result, question.correct_answer);
-  //         if (isCorrect === true) {
-  //           totalPoints += 0.25;
-  //         }
-  //       }
-  //     }
-  //   }
-
-  //   try {
-  //     const submitResults = await Exam.submitExam(values);
-  //     if (submitResults.affectedRows > 0) {
-  //       req.score = {
-  //         examId,
-  //         user,
-  //         score: totalPoints,
-  //         time,
-  //         examDate,
-  //       };
-  //       next();
-  //     } else {
-  //       responseStatus(res, 400, "failed", "Failed to submit answer");
-  //     }
-  //   } catch (error) {
-  //     responseStatus(res, 500, "failed", "Internal server error");
-  //   }
-  // },
-};
+    try {
+      if(results){
+        req.results = {
+          exam_id: examId,
+          user_id: payload.id,
+          score: totalPoints,
+          time: examTime,
+          exam_date: examDate
+      }
+        next();
+      }
+    } catch (error) {
+      responseStatus({res, status: "failed", statusCode: 500, data: "Internal server error"});
+    }
+  },
+}
 
 export default authMiddleware;

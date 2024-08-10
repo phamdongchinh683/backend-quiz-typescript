@@ -6,22 +6,20 @@ import { v4 as uuidv4 } from "uuid";
 import responseStatus from "../handler";
 import authMethod from "./auth.methods";
 import StudentService from "../../services/student/student.service";
+import ExamService from "../../services/student/exam.service";
 import IUserRequest from "../../interface/IUserRequest";
 import IUserRequestBody from "../../interface/IUserRequestBody";
 import ICreateUser from "../../interface/INewUser";
-import IRole from "../../interface/IRole";
 import Database from "../../config/config";
 import INewInfo from "../../interface/INewInfo";
 
 const saltRounds = 10;
 const TokenSecret = process.env.ACCESS_TOKEN_SECRET;
 const TokenLife = process.env.ACCESS_TOKEN_LIFE;
-
 const mySql = Database.getInstance();
 const connection = mySql.getPool();
 
 const authController = {
-
   signup: async (req: IUserRequest, res: Response): Promise<void> => {
     if (!req.signup) {
       responseStatus({ res, status: "failed", statusCode: 400, data: "Signup data is not available" })
@@ -140,7 +138,7 @@ const authController = {
     const user = req.info;
     try {
       if (!user) {
-         responseStatus({ res, status: "failed", statusCode: 400, data: "user not found!" });
+         responseStatus({ res, status: "failed", statusCode: 400, data: "Not found your information" });
       }
        responseStatus({ res, status: "success", statusCode: 200, data: user });
     } catch (error) {
@@ -233,51 +231,54 @@ const authController = {
     } catch (error) {
       responseStatus({ res, status: "failed", statusCode: 500, data: "Server Error" });
     }
-}
+},
 
+  listExam: async (req: Request, res: Response): Promise<void> => {
+    try {
+      const listExam = await ExamService.Exams();
+      if (listExam) {
+        responseStatus({ res, status: "success", statusCode: 200, data: listExam });
+      } else {
+        responseStatus({ res, status: "failed", statusCode: 400, data: "Not found list Exam"});
+      }
+    } catch (error) {
+      responseStatus({ res, status: "failed", statusCode: 400, data: error});
+    }
+  },
 
-  // listExam: async (req: Request, res: Response): Promise<void> => {
-  //   try {
-  //     const listExam = await Exam.Exams();
-  //     if (listExam.length > 0) {
-  //        responseStatus(res, 200, "success", listExam);
-  //     } else {
-  //        responseStatus(res, 400, "failed", "Not found list Exam");
-  //     }
-  //   } catch (error) {
-  //      responseStatus(res, 500, "failed", error.message);
-  //   }
-  // },
+  getExam: async (req: Request, res: Response): Promise<void> => {
+    const examId = req.params.id;
+    try {
+      const getQuestion = await ExamService.takeExam(examId);
+      if (!getQuestion) {
+        responseStatus({ res, status: "failed", statusCode: 400, data: "Currently not have question this exam"});
+      } else {
+        responseStatus({ res, status: "success", statusCode: 200, data: getQuestion});
+      }
+    } catch (error) {
+      responseStatus({ res, status: "failed", statusCode: 500, data: "Server Error"});
+    }
+  },
 
-  // getExam: async (req: Request, res: Response): Promise<void> => {
-  //   const examId = req.params.id;
-  //   try {
-  //     const getQuestion = await Exam.takeExam(examId);
-  //     if (getQuestion.length <= 0) {
-  //        responseStatus(res, 400, "failed", "Currently not have question this exam");
-  //     } else {
-  //        responseStatus(res, 200, "success", getQuestion);
-  //     }
-  //   } catch (error) {
-  //      res.json({ message: error.message });
-  //   }
-  // },
+  saveResult:  async (req: IUserRequest, res: Response): Promise<void> => {
+    const newId = uuidv4();
+    const result = req.results;
 
-  // saveResult:  async (req: Request, res: Response): Promise<void> => {
-  //   const newId = uuidv4();
-  //   const { score, examId, user, time, examDate } = req.body;
-
-  //   try {
-  //     const save = await Exam.saveResult(newId, examId, user.id, score, time, examDate);
-  //     if (save.affectedRows > 0) {
-  //        responseStatus(res, 200, "success", score);
-  //     } else {
-  //        responseStatus(res, 400, "failed", "Not data save");
-  //     }
-  //   } catch (error) {
-  //      res.status(500).send({ message: "Internal server error" });
-  //   }
-  // },
+    if (!result) {
+      responseStatus({ res, status: "failed", statusCode: 401, data: "Not found your information" });
+      return;
+    }
+    try {
+      const save = await ExamService.saveResult(result);
+      if (save?.affectedRows) {
+        responseStatus({ res, status: "success", statusCode: 200, data: result?.score });
+      } else {
+        responseStatus({ res, status: "failed", statusCode: 400, data: "Not data save"});
+      }
+    } catch (error) {
+      responseStatus({ res, status: "failed", statusCode: 500, data: "Not data save"});
+    }
+  },
 };
 
 export default authController;

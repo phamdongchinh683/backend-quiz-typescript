@@ -1,17 +1,17 @@
+import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
-import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 
-import responseStatus from "../handler";
-import authMethod from "./auth.methods";
-import StudentService from "../../services/student/student.service";
-import ExamService from "../../services/student/exam.service";
-import IUserRequest from "../../interface/IUserRequest";
-import IUserRequestBody from "../../interface/IUserRequestBody";
-import ICreateUser from "../../interface/INewUser";
 import Database from "../../config/config";
 import INewInfo from "../../interface/INewInfo";
+import ICreateUser from "../../interface/INewUser";
+import IUserRequest from "../../interface/IUserRequest";
+import IUserRequestBody from "../../interface/IUserRequestBody";
+import ExamService from "../../services/student/exam.service";
+import StudentService from "../../services/student/student.service";
+import responseStatus from "../handler";
+import authMethod from "./auth.methods";
 
 const saltRounds = 10;
 const TokenSecret = process.env.ACCESS_TOKEN_SECRET;
@@ -261,7 +261,6 @@ const authController = {
   },
 
   saveResult:  async (req: IUserRequest, res: Response): Promise<void> => {
-    const newId = uuidv4();
     const result = req.results;
 
     if (!result) {

@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const router = express_1.default.Router();
+const authMiddleware_1 = __importDefault(require("../../middlewares/Auth/authMiddleware"));
+const auth_controllers_1 = __importDefault(require("../../controllers/Auth/auth.controllers"));
+// router.post("/signup", authMiddleware.signUpData, authController.signup);
+router.post("/login", authMiddleware_1.default.isStudent, auth_controllers_1.default.login);
+router.post("/refresh", authMiddleware_1.default.authorization, auth_controllers_1.default.refreshToken);
+router.get("/profile", authMiddleware_1.default.authorization, authMiddleware_1.default.roleStudent, auth_controllers_1.default.profileView);
+router.post("/profile/change-password", authMiddleware_1.default.authorization, authMiddleware_1.default.roleStudent, auth_controllers_1.default.updatePassword);
+router.post("/profile/change-information", authMiddleware_1.default.authorization, authMiddleware_1.default.roleStudent, auth_controllers_1.default.updateProfile);
+router.get("/profile/exam-history", authMiddleware_1.default.authorization, authMiddleware_1.default.roleStudent, auth_controllers_1.default.examHistory);
+router.get("/exam-list", authMiddleware_1.default.authorization, authMiddleware_1.default.roleStudent, auth_controllers_1.default.listExam);
+router.post("/take-exam/:id", authMiddleware_1.default.authorization, authMiddleware_1.default.roleStudent, auth_controllers_1.default.getExam);
+router.post("/submit-exam/:id", authMiddleware_1.default.authorization, authMiddleware_1.default.roleStudent, authMiddleware_1.default.examResult, auth_controllers_1.default.saveResult);
+exports.default = router;

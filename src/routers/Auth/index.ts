@@ -12,6 +12,7 @@ router.post(
   authController.refreshToken
 );
 
+
 router.get(
     "/profile",
     authMiddleware.authorization,

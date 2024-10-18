@@ -1,13 +1,12 @@
 import bcrypt from "bcrypt";
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import authMethod from "../../controllers/Auth/auth.methods";
 import responseStatus from "../../controllers/handler/index";
-import StudentService from "../../services/student/student.service";
-// import Exam from "../../services/student/exam.service";
+import INewUser from "../../interface/INewUser";
 import IPayload from '../../interface/IPayload';
 import IUserRequest from "../../interface/IUserRequest";
-import INewUser from "../../interface/INewUser";
 import ExamService from "../../services/student/exam.service";
+import StudentService from "../../services/student/student.service";
 
 const tokenSecret = process.env.ACCESS_TOKEN_SECRET;
 const authMiddleware = {

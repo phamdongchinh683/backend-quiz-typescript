@@ -1,5 +1,5 @@
-import mysql, { Pool, PoolOptions } from "mysql2/promise";
 import dotenv from "dotenv";
+import mysql, { Pool, PoolOptions } from "mysql2/promise";
 dotenv.config();
 
 class Database {
